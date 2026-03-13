@@ -51,6 +51,31 @@ class Route:
   def __init__(self, depot_id: int = 0):
     self.nodes: list = [depot_id];
     self.total_demand: int = 0;
+    self.total_distance: float = 0.0;
+    self._depot_id = depot_id;
+
+  def add_customer(self, customer: "Customer", distance_matrix: list) -> None:
+    """Time: O(1) - Dynamically tracks distance and demand."""
+    last_node = self.nodes[-1];
+    self.nodes.append(customer.customer_id);
+    self.total_demand += customer.demand;
+    self.total_distance += distance_matrix[last_node][customer.customer_id];
+
+  def close(self, distance_matrix: list) -> None:
+    if self.nodes[-1] != self._depot_id:
+      last_node = self.nodes[-1];
+      self.nodes.append(self._depot_id);
+      self.total_distance += distance_matrix[last_node][self._depot_id];
+
+  def __len__(self) -> int:
+    return len(self.nodes);
+
+  def __repr__(self) -> str:
+    return f"Route(nodes={self.nodes}, demand={self.total_demand}, distance={self.total_distance:.2f})";
+  """Time: O(1) appends, Space: O(n) where n is route length."""
+  def __init__(self, depot_id: int = 0):
+    self.nodes: list = [depot_id];
+    self.total_demand: int = 0;
     self._depot_id = depot_id;
 
   def add_customer(self, customer: "Customer") -> None:
@@ -102,7 +127,7 @@ class VRPInstance:
           dx = customers[i].x_coordinate - customers[j].x_coordinate;
           dy = customers[i].y_coordinate - customers[j].y_coordinate;
           matrix[i][j] = math.hypot(dx, dy);
-    return cls(customers, matrix, vehicle_capacity, num_vehicles);
+    return cls(customers, matrix, vehicle_capacity, num_vehicles);xq
 
   @staticmethod
   def _validate(customers, distance_matrix, vehicle_capacity, num_vehicles):

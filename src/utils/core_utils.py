@@ -20,8 +20,8 @@ def load_test_case(filepath: str):
       vehicle_capacity=data["vehicle_capacity"],
       num_vehicles=data["num_vehicles"]
     );
-  except Exception as exc:
-    print(f"[load_test_case] Error in '{filepath}': { exc }");
+  except (FileNotFoundError, json.JSONDecodeError, KeyError) as error:
+    print(f"[load_test_case] Failed to load '{filepath}': { error }");
     return None;
 
 def validate_solution(solution: dict, demands: list, vehicle_capacity: int, num_customers: int) -> dict:
