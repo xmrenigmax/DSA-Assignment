@@ -13,24 +13,32 @@ Space complexity : O(population_size * n)
 
 import random
 import logging
+
 from .genetic_operators import (
-    random_chromosome, tournament_select, order_crossover,
-    swap_mutation, two_opt_intra_route, inter_route_relocate,
-    decode_chromosome, calculate_total_distance
+    random_chromosome,
+    tournament_select,
+    order_crossover,
+    swap_mutation,
+    two_opt_intra_route,
+    inter_route_relocate,
+    decode_chromosome,
+    calculate_total_distance,
 )
 
-# Professional logging setup replacing standard print statements
-logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
+logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
 
 
-def run_optimised_solution(distance_matrix: list, demands: list,
+def run_optimised_solution(
+    distance_matrix: list,
+    demands: list,
     vehicle_capacity: int,
     population_size: int = 80,
     generations: int = 300,
     p_crossover: float = 0.85,
     p_mutation: float = 0.15,
-    random_seed: int = None) -> dict:
+    random_seed: int = None,
+) -> dict:
     """
     Solve the CVRP using a GA with 2-opt and inter-route post-processing.
     """
@@ -48,7 +56,6 @@ def run_optimised_solution(distance_matrix: list, demands: list,
 
     customer_ids = list(range(1, num_customers + 1))
 
-    # Helper function to evaluate fitness dynamically
     def get_fitness(chromosome):
         routes = decode_chromosome(chromosome, demands, vehicle_capacity)
         return calculate_total_distance(routes, distance_matrix)
@@ -73,7 +80,7 @@ def run_optimised_solution(distance_matrix: list, demands: list,
                 child_a, child_b = parent_a[:], parent_b[:]
 
             # Mutation
-            if random.random() < p_crossover:
+            if random.random() < p_mutation:  # Bug fix: was p_crossover
                 child_a = swap_mutation(child_a)
             if random.random() < p_mutation:
                 child_b = swap_mutation(child_b)
@@ -92,10 +99,10 @@ def run_optimised_solution(distance_matrix: list, demands: list,
     # 4. Decode & Post-Processing (Local Search)
     routes = decode_chromosome(best_chromosome, demands, vehicle_capacity)
 
-    # Intra-route optimization (2-opt)
+    # Intra-route optimisation (2-opt)
     optimised_routes = [two_opt_intra_route(r, distance_matrix) for r in routes]
 
-    # Inter-route optimization (Relocate)
+    # Inter-route optimisation (Relocate)
     optimised_routes = inter_route_relocate(
         optimised_routes, distance_matrix, demands, vehicle_capacity
     )
